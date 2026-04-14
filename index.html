@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily 1</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',sans-serif; }
+body { background:#f4f6f9; }
+
+header {
+    background:#c40000;
+    color:white;
+    text-align:center;
+    padding:20px;
+}
+
+.container {
+    max-width:950px;
+    margin:20px auto;
+    padding:15px;
+}
+
+.card {
+    background:white;
+    padding:15px;
+    border-radius:12px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
+
+.controls {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:15px;
+    flex-wrap:wrap;
+    gap:10px;
+}
+
+button {
+    background:#c40000;
+    color:white;
+    border:none;
+    padding:8px 14px;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+button:hover { background:#900000; }
+
+input {
+    padding:6px;
+    width:70px;
+    border-radius:6px;
+    border:1px solid #ccc;
+}
+
+canvas {
+    width:100%;
+    border-radius:10px;
+    border:1px solid #ddd;
+}
+
+footer {
+    text-align:center;
+    margin-top:15px;
+    font-size:12px;
+    color:gray;
+}
+
+@media (max-width:600px){
+    .controls { flex-direction:column; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h2>Daily 1</h2>
+    <p>A-22-125-Hanum Zaqiah Permatasari</p>
+</header>
+
+<div class="container">
+<div class="card">
+
+<div class="controls">
+    <button onclick="prevPage()">‹ Prev</button>
+
+    <div>
+        Halaman <span id="page_num">1</span> / <span id="page_count">0</span>
+        <input type="number" id="jump" min="1" placeholder="Ke">
+        <button onclick="jumpPage()">Go</button>
+    </div>
+
+    <button onclick="nextPage()">Next ›</button>
+</div>
+
+<canvas id="pdf-render"></canvas>
+
+</div>
+
+<footer>© 2026 - PDF Reader UMM</footer>
+</div>
+
+<script>
+let pdfDoc = null;
+let pageNum = 1;
+let scale = 1.5;
+
+const canvas = document.getElementById('pdf-render');
+const ctx = canvas.getContext('2d');
+
+// ✅ LINK SUDAH DIPERBAIKI
+const url = "https://hanumzaqiah.github.io/daily1/modul1_compressed.pdf";
+
+pdfjsLib.getDocument(url).promise.then(function(pdf){
+    pdfDoc = pdf;
+    document.getElementById('page_count').textContent = pdf.numPages;
+    renderPage(pageNum);
+}).catch(function(error){
+    alert("PDF gagal dimuat! Pastikan file ada & link benar.");
+    console.error(error);
+});
+
+function renderPage(num){
+    pdfDoc.getPage(num).then(function(page){
+        const viewport = page.getViewport({ scale: scale });
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+
+        page.render({
+            canvasContext: ctx,
+            viewport: viewport
+        });
+
+        document.getElementById('page_num').textContent = num;
+    });
+}
+
+function nextPage(){
+    if(pageNum >= pdfDoc.numPages) return;
+    pageNum++;
+    renderPage(pageNum);
+}
+
+function prevPage(){
+    if(pageNum <= 1) return;
+    pageNum--;
+    renderPage(pageNum);
+}
+
+function jumpPage(){
+    const input = document.getElementById("jump").value;
+    if(input >= 1 && input <= pdfDoc.numPages){
+        pageNum = parseInt(input);
+        renderPage(pageNum);
+    }
+}
+</script>
+
+</body>
+</html>
